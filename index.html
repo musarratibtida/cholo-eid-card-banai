@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cholo Eid Card Banai! | Let's Make an Eid Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f1ea;
+            background-image: url("https://www.transparenttextures.com/patterns/recycled-paper.png");
+        }
+
+        .sketchbook-font { font-family: 'Gochi Hand', cursive; }
+
+        /* The "Hand-Drawn" imperfect border */
+        .hand-drawn {
+            border: 2px solid #3e2723;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        }
+
+        .card-container { perspective: 1000px; }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flipped { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: #fffdf5;
+            padding: 1.5rem;
+        }
+
+        /* Postbox Styling */
+        .postbox {
+            width: 160px;
+            height: 240px;
+            background: #d32f2f;
+            border-top-left-radius: 80px;
+            border-top-right-radius: 80px;
+            border: 4px solid #b71c1c;
+            position: relative;
+            box-shadow: inset -8px 0 15px rgba(0,0,0,0.2);
+        }
+
+        .post-slot {
+            width: 100px;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            margin: 35px auto 0;
+        }
+
+        .stamp-applied {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 55px;
+            transform: rotate(8deg);
+            animation: stamp-pop 0.2s ease-out;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+        }
+
+        @keyframes stamp-pop {
+            0% { transform: scale(2); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-[#3e2723] sketchbook-font">Cholo Eid Card Banai!</h1>
+        <p class="text-[#8d6e63] text-sm tracking-widest uppercase mt-1">Digital Postbox • Dhaka GPO Edition</p>
+    </header>
+
+    <main class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-16">
+        
+        <div class="card-container w-[300px] h-[440px]">
+            <div id="mainCard" class="card-inner w-full h-full cursor-pointer" onclick="toggleFlip()">
+                
+                <div class="card-front bg-white hand-drawn p-2">
+                    <img id="frontImg" src="YOUR_BHEEM_FRONT_URL" alt="Front" class="w-full h-full object-contain">
+                    <div id="stampArea" class="hidden">
+                        <img src="https://i.postimg.cc/mD86fJ6J/bheem-stamp.png" class="stamp-applied" alt="Stamp">
+                    </div>
+                </div>
+
+                <div class="card-back hand-drawn">
+                    <div class="flex flex-col h-full border-l border-[#d7ccc8] pl-4">
+                        <div class="mt-10 text-xl text-[#3e2723] sketchbook-font leading-relaxed" id="displayMsg">
+                            Your message will appear here...
+                        </div>
+                        <div class="mt-auto mb-4 self-center opacity-30">
+                             <img src="YOUR_BHEEM_LOGO_URL" class="w-10 grayscale" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center mt-4 text-[10px] text-[#8d6e63] font-bold uppercase tracking-[0.2em]">
+                Click to flip card
+            </p>
+        </div>
+
+        <div class="flex flex-col items-center gap-8 w-full max-w-xs">
+            
+            <div class="w-full bg-white/40 p-5 hand-drawn">
+                <label class="block text-xs font-bold text-[#3e2723] uppercase mb-3">1. Write your wish</label>
+                <textarea 
+                    id="msgInput" 
+                    maxlength="140"
+                    oninput="updateMessage()"
+                    class="w-full h-24 bg-transparent border-b border-[#8d6e63] focus:outline-none focus:border-[#3e2723] text-[#3e2723] sketchbook-font text-lg resize-none"
+                    placeholder="Eid Mubarak! Hope you have a wonderful day filled with joy..."></textarea>
+                
+                <div class="mt-6">
+                    <label class="block text-xs font-bold text-[#3e2723] uppercase mb-3">2. Choose a stamp</label>
+                    <div class="flex gap-3">
+                        <button onclick="applyStamp()" class="w-10 h-10 bg-white border border-[#3e2723] rounded hover:rotate-6 transition flex items-center justify-center text-lg">
+                             🎟️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <div class="postbox flex flex-col items-center">
+                    <div class="post-slot shadow-inner"></div>
+                    <div class="mt-12 text-white text-[9px] text-center font-bold tracking-widest opacity-80">
+                        BANGLADESH <br> POST OFFICE
+                    </div>
+                    
+                    <button 
+                        id="postBtn"
+                        onclick="sendToPostbox()"
+                        class="mt-10 bg-[#fffdf5] border-2 border-[#3e2723] text-[#3e2723] font-bold px-5 py-2 rounded-full shadow-lg transform active:scale-95 transition-all text-xs uppercase tracking-wider">
+                        Send to Postbox 📮
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function toggleFlip() {
+            document.getElementById('mainCard').classList.toggle('flipped');
+        }
+
+        function updateMessage() {
+            const input = document.getElementById('msgInput').value;
+            document.getElementById('displayMsg').innerText = input || "Your message will appear here...";
+        }
+
+        function applyStamp() {
+            document.getElementById('stampArea').classList.remove('hidden');
+        }
+
+        function sendToPostbox() {
+            const card = document.getElementById('mainCard');
+            if(document.getElementById('stampArea').classList.contains('hidden')) {
+                alert("Please add a stamp before posting!");
+                return;
+            }
+
+            // Slide up animation
+            card.style.transition = "all 0.9s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+            card.style.transform = "translateY(-1200px) rotate(10deg) scale(0.5)";
+            card.style.opacity = "0";
+
+            setTimeout(() => {
+                alert("Card Sent! 📮\nYour friend will receive it soon.");
+                // Ready for GitHub Pages deployment logic
+            }, 900);
+        }
+    </script>
+
+</body>
+</html>
