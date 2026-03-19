@@ -1,196 +1,222 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cholo Eid Card Banai! | Let's Make an Eid Card</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f1ea;
-            background-image: url("https://www.transparenttextures.com/patterns/recycled-paper.png");
-        }
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Howl } from 'howler';
 
-        .sketchbook-font { font-family: 'Gochi Hand', cursive; }
+// --- Assets Setup ---
+// Add these files to your GitHub 'public' folder:
+// public/whoosh.mp3 (A light "whoosh" sound)
+// public/stamp.png (Your transparent stamp image)
+// public/postbox.png (Your transparent postbox image)
+// public/chota-bheem-front.png (Your HD card front design)
+const whooshSound = new Howl({ src: ['/whoosh.mp3'], volume: 0.7 });
 
-        /* The "Hand-Drawn" imperfect border */
-        .hand-drawn {
-            border: 2px solid #3e2723;
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-        }
+// --- Pastel & Henna Design Helper ---
+const HennaMotif = ({ className }) => (
+  <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Minimalist Henna Pattern */}
+    <path d="M50 10 C60 20, 40 40, 50 50 C60 60, 40 80, 50 90 M50 50 C40 40, 20 60, 10 50 C20 40, 40 20, 50 50 M50 50 C60 60, 80 40, 90 50 C80 60, 60 80, 50 50" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="50" cy="50" r="5" fill="currentColor"/>
+  </svg>
+);
 
-        .card-container { perspective: 1000px; }
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-        }
+const CholoEidCardBanai = () => {
+  const [message, setMessage] = useState("");
+  const [hasStamp, setHasStamp] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isPosted, setIsPosted] = useState(false);
+  const [stampOpacity, setStampOpacity] = useState(0); // For subtle stamp fade-in
 
-        .flipped { transform: rotateY(180deg); }
+  const handleApplyStamp = () => {
+    setHasStamp(true);
+    // Subtle animation for the stamp "inking"
+    setTimeout(() => setStampOpacity(1), 100);
+  };
 
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
+  const handlePost = () => {
+    if (!hasStamp) {
+      alert("Oops! Don't forget to add a stamp first.");
+      return;
+    }
+    // 1. Play the 'whoosh' sound effect
+    whooshSound.play();
+    
+    // 2. Trigger the postbox animation (in the card motion.div)
+    setIsPosted(true);
 
-        .card-back {
-            transform: rotateY(180deg);
-            background: #fffdf5;
-            padding: 1.5rem;
-        }
+    // 3. (Optional) In a real app, generate the shareable link here.
+  };
 
-        /* Postbox Styling */
-        .postbox {
-            width: 160px;
-            height: 240px;
-            background: #d32f2f;
-            border-top-left-radius: 80px;
-            border-top-right-radius: 80px;
-            border: 4px solid #b71c1c;
-            position: relative;
-            box-shadow: inset -8px 0 15px rgba(0,0,0,0.2);
-        }
+  return (
+    <div className="min-h-screen bg-[#FFF9F0] p-6 flex flex-col items-center overflow-hidden relative font-sans">
+      
+      {/* --- Decorative Background Layout --- */}
+      {/* Sky Blue Pastel Header Wave */}
+      <div className="absolute top-0 left-0 w-full h-40 bg-[#E3F2FD] -z-10 rounded-b-[50px] shadow-inner" />
+      
+      {/* Glowing Moon & Lanterns */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-12 text-[#FFD740]/60 -z-10">
+        <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 6 }}>
+           🌙 <span className="text-4xl">Crescent GPO</span>
+        </motion.div>
+        <motion.div animate={{ opacity: [0.7, 1, 0.7] }} transition={{ repeat: Infinity, duration: 3 }}>
+           🏮 <span className="text-xl">Lighting Your Wishes</span>
+        </motion.div>
+      </div>
 
-        .post-slot {
-            width: 100px;
-            height: 10px;
-            background: #1a1a1a;
-            border-radius: 10px;
-            margin: 35px auto 0;
-        }
+      {/* Henna Patterns in Pastel Pink */}
+      <HennaMotif className="absolute -bottom-10 -left-10 w-48 h-48 text-[#FCE4EC] -z-10 opacity-60" />
+      <HennaMotif className="absolute -top-10 -right-10 w-48 h-48 text-[#FCE4EC] -z-10 opacity-60" />
 
-        .stamp-applied {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 55px;
-            transform: rotate(8deg);
-            animation: stamp-pop 0.2s ease-out;
-            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
-        }
+      {/* --- Main Content --- */}
+      <header className="text-center mb-12 border-b-2 border-dashed border-[#8d6e63] pb-4 w-full max-w-lg">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#3e2723] sketchbook-font drop-shadow-sm">
+          চলো ঈদ কার্ড বানাই!
+        </h1>
+        <p className="text-sm italic text-[#8d6e63] mt-2 tracking-widest uppercase">
+          Digital Postbox • Nostalgic Pastel Edition
+        </p>
+      </header>
 
-        @keyframes stamp-pop {
-            0% { transform: scale(2); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center p-6">
-
-    <header class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-[#3e2723] sketchbook-font">Cholo Eid Card Banai!</h1>
-        <p class="text-[#8d6e63] text-sm tracking-widest uppercase mt-1">Digital Postbox • Dhaka GPO Edition</p>
-    </header>
-
-    <main class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-16">
+      <div className="flex flex-col lg:flex-row gap-16 items-center justify-center w-full max-w-6xl">
         
-        <div class="card-container w-[300px] h-[440px]">
-            <div id="mainCard" class="card-inner w-full h-full cursor-pointer" onclick="toggleFlip()">
-                
-                <div class="card-front bg-white hand-drawn p-2">
-                    <img id="frontImg" src="YOUR_BHEEM_FRONT_URL" alt="Front" class="w-full h-full object-contain">
-                    <div id="stampArea" class="hidden">
-                        <img src="https://i.postimg.cc/mD86fJ6J/bheem-stamp.png" class="stamp-applied" alt="Stamp">
-                    </div>
-                </div>
-
-                <div class="card-back hand-drawn">
-                    <div class="flex flex-col h-full border-l border-[#d7ccc8] pl-4">
-                        <div class="mt-10 text-xl text-[#3e2723] sketchbook-font leading-relaxed" id="displayMsg">
-                            Your message will appear here...
-                        </div>
-                        <div class="mt-auto mb-4 self-center opacity-30">
-                             <img src="YOUR_BHEEM_LOGO_URL" class="w-10 grayscale" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p class="text-center mt-4 text-[10px] text-[#8d6e63] font-bold uppercase tracking-[0.2em]">
-                Click to flip card
-            </p>
-        </div>
-
-        <div class="flex flex-col items-center gap-8 w-full max-w-xs">
+        {/* --- 1. The Interactive Card (Sketchbook Style) --- */}
+        <motion.div 
+          // Postbox 'whoosh' animation: Slides up, rotates, and shrinks
+          animate={isPosted ? { y: -1000, scale: 0.1, rotate: 25, opacity: 0 } : {}}
+          transition={{ duration: 1.1, ease: [0.6, -0.28, 0.735, 0.045] }}
+          className="relative group cursor-pointer"
+        >
+          <div className="relative w-[320px] h-[460px] shadow-2xl transition-all duration-500 rounded-sm overflow-hidden border-2 border-[#d7ccc8]" 
+               onClick={() => setIsFlipped(!isFlipped)}
+               style={{ transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'none' }}>
             
-            <div class="w-full bg-white/40 p-5 hand-drawn">
-                <label class="block text-xs font-bold text-[#3e2723] uppercase mb-3">1. Write your wish</label>
-                <textarea 
-                    id="msgInput" 
-                    maxlength="140"
-                    oninput="updateMessage()"
-                    class="w-full h-24 bg-transparent border-b border-[#8d6e63] focus:outline-none focus:border-[#3e2723] text-[#3e2723] sketchbook-font text-lg resize-none"
-                    placeholder="Eid Mubarak! Hope you have a wonderful day filled with joy..."></textarea>
+            {/* FRONT SIDE (Paste over with your HD Chota Bheem design) */}
+            <div className="absolute inset-0 backface-hidden bg-white p-2">
+                <img src="/chota-bheem-front.png" className="w-full h-full object-contain" alt="Front" />
                 
-                <div class="mt-6">
-                    <label class="block text-xs font-bold text-[#3e2723] uppercase mb-3">2. Choose a stamp</label>
-                    <div class="flex gap-3">
-                        <button onclick="applyStamp()" class="w-10 h-10 bg-white border border-[#3e2723] rounded hover:rotate-6 transition flex items-center justify-center text-lg">
-                             🎟️
-                        </button>
-                    </div>
-                </div>
+                {/* THE STAMP AREA: Transparent, fading-in stamp */}
+                <AnimatePresence>
+                  {hasStamp && (
+                    <motion.div 
+                      initial={{ scale: 3, opacity: 0 }}
+                      animate={{ scale: 1, opacity: stampOpacity }}
+                      exit={{ opacity: 0 }}
+                      className="absolute top-4 right-4 w-16 h-16 pointer-events-none z-10"
+                    >
+                      <img src="/stamp.png" className="w-full rotate-12 drop-shadow-md" alt="Applied Stamp" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
             </div>
 
-            <div class="flex flex-col items-center">
-                <div class="postbox flex flex-col items-center">
-                    <div class="post-slot shadow-inner"></div>
-                    <div class="mt-12 text-white text-[9px] text-center font-bold tracking-widest opacity-80">
-                        BANGLADESH <br> POST OFFICE
-                    </div>
-                    
-                    <button 
-                        id="postBtn"
-                        onclick="sendToPostbox()"
-                        class="mt-10 bg-[#fffdf5] border-2 border-[#3e2723] text-[#3e2723] font-bold px-5 py-2 rounded-full shadow-lg transform active:scale-95 transition-all text-xs uppercase tracking-wider">
-                        Send to Postbox 📮
-                    </button>
-                </div>
+            {/* BACK SIDE (Note writing area) */}
+            <div 
+              className="absolute inset-0 backface-hidden bg-[#FFFDF5] p-8 border-l-4 border-black/10 flex flex-col"
+              style={{ transform: 'rotateY(180deg)' }}
+            >
+              <div className="h-full flex flex-col justify-center items-center text-center space-y-6">
+                 {/* Postcard Note Area */}
+                 <div className="w-full border-b border-dashed border-[#d7ccc8] pb-2 min-h-[120px]">
+                    <p className="text-[#3e2723] text-xl leading-relaxed whitespace-pre-wrap sketchbook-font">
+                      {message || "এখানে তোমার মনের কথা লেখো..."}
+                    </p>
+                 </div>
+                 
+                 <div className="mt-auto opacity-30 grayscale self-center">
+                    <img src="/bheem-logo.png" className="w-16 mx-auto" alt="Logo" />
+                 </div>
+              </div>
             </div>
+          </div>
+          
+          {/* Instructions */}
+          {!isPosted && (
+            <p className="text-center mt-6 text-xs text-[#8d6e63] font-bold uppercase tracking-widest">
+              {isFlipped ? "সামনে দেখো" : "উল্টে দেখো"} (Click to flip)
+            </p>
+          )}
+        </motion.div>
+
+        {/* --- 2. The GPO Control Panel (Pastel Colors) --- */}
+        <div className="w-full max-w-sm bg-white/70 backdrop-blur-sm p-8 rounded-xl border-2 border-dashed border-[#bcaaa4] shadow-lg flex flex-col gap-8">
+          
+          {/* Message Input */}
+          <div className="space-y-4">
+            <label className="block text-sm font-semibold text-[#5d4037]">1. Write your wish (তোমার মেসেজ):</label>
+            <textarea 
+              maxLength={160}
+              className="w-full h-28 p-4 bg-[#FDFBF7] border border-[#d7ccc8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8d6e63] text-[#3e2723] resize-none"
+              placeholder="ঈদ মোবারক বন্ধু! এইবারের ঈদে দেখা হবে তো? চটপটি খাওয়া বাকি আমাদের..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <span className="text-xs text-[#a1887f] float-right mt-1">{message.length}/160 chars</span>
+          </div>
+
+          {/* Stamp Selection (Nostalgic Stamps) */}
+          <div className="space-y-4">
+            <label className="block text-sm font-semibold text-[#5d4037]">2. Add a stamp (স্ট্যাম্প লাগাও):</label>
+            <div className="flex gap-4 items-center">
+              {/* STAMP BUTTON */}
+              <button 
+                onClick={handleApplyStamp} 
+                className={`w-14 h-14 border-2 border-[#3e2723] rounded p-1 transition-all ${hasStamp ? 'opacity-50 grayscale' : 'hover:scale-110 active:scale-95'}`}>
+                 <img src="/stamp.png" className="w-full h-full object-contain" alt="Apply Stamp" />
+              </button>
+              
+              {/* Postmark Decoration */}
+              <div className="opacity-40 border-l border-dashed border-[#8d6e63] pl-4">
+                 <img src="/postmark.png" className="w-16" alt="Dhaka GPO Postmark" />
+              </div>
+            </div>
+          </div>
+
+          {/* --- 3. The Functional Postbox (Send) --- */}
+          <div className="border-t border-[#d7ccc8] pt-8 mt-4 flex flex-col items-center gap-6">
+            <label className="block text-sm font-semibold text-[#5d4037]">3. Post Card (পাঠিয়ে দাও):</label>
+            
+            <div className="relative w-44 transition-all group-hover:scale-105">
+              {/* Transparent Postbox Image */}
+              <img src="/postbox.png" alt="Bangladesh Postbox" className="w-full" />
+              
+              {/* POST BUTTON (Overlayed on postbox base) */}
+              <button 
+                disabled={!hasStamp || isPosted}
+                onClick={handlePost}
+                className={`absolute bottom-6 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full font-bold shadow-lg transition-all text-xs uppercase tracking-widest 
+                  ${(hasStamp && !isPosted) ? 'bg-[#fffdf5] text-[#3e2723] border-2 border-[#3e2723] hover:bg-[#8d6e63] hover:text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+              >
+                Post Now 📮
+              </button>
+            </div>
+          </div>
 
         </div>
-    </main>
+      </div>
 
-    <script>
-        function toggleFlip() {
-            document.getElementById('mainCard').classList.toggle('flipped');
-        }
+      {/* Success State Overlay */}
+      <AnimatePresence>
+        {isPosted && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-6"
+          >
+            <div className="bg-[#FFF9F0] p-10 rounded-2xl max-w-sm text-center border-4 border-[#3e2723] shadow-2xl relative">
+               {/* Closing moon doodle */}
+               <div className="absolute top-2 right-2 text-2xl text-[#FFD740]/60">🌙</div>
+               
+               <h2 className="text-3xl font-bold mb-4 text-[#3e2723]">পোস্ট করা হয়েছে! 📮</h2>
+               <p className="mb-6 text-[#5d4037] text-lg sketchbook-font">"Your card is now flying to the postbox slot. Eid Mubarak!"</p>
+               
+               <input readOnly value="https://cholo-eid-card.vercel.app/view/xyz123" className="w-full p-2 border mb-4 text-xs font-mono" />
+               <button onClick={() => setIsPosted(false)} className="bg-[#3e2723] text-white px-6 py-2 rounded-lg">Make Another One</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
-        function updateMessage() {
-            const input = document.getElementById('msgInput').value;
-            document.getElementById('displayMsg').innerText = input || "Your message will appear here...";
-        }
-
-        function applyStamp() {
-            document.getElementById('stampArea').classList.remove('hidden');
-        }
-
-        function sendToPostbox() {
-            const card = document.getElementById('mainCard');
-            if(document.getElementById('stampArea').classList.contains('hidden')) {
-                alert("Please add a stamp before posting!");
-                return;
-            }
-
-            // Slide up animation
-            card.style.transition = "all 0.9s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
-            card.style.transform = "translateY(-1200px) rotate(10deg) scale(0.5)";
-            card.style.opacity = "0";
-
-            setTimeout(() => {
-                alert("Card Sent! 📮\nYour friend will receive it soon.");
-                // Ready for GitHub Pages deployment logic
-            }, 900);
-        }
-    </script>
-
-</body>
-</html>
+export default CholoEidCardBanai;
