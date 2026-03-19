@@ -1,1 +1,0 @@
-# cholo-eid-card-banai
